@@ -231,6 +231,28 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  it("should evaluate 'smaller' operator correctly", () => {
+    const context = { items: [1, 2, 3] };
+    const rules: RuleType = { fact: "items", operator: "smaller", value: 5 };
+
+    const engine = new RuleEngine();
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(1);
+  });
+
+  it("should evaluate 'bigger' operator correctly", () => {
+    const context = { items: [1, 2, 3, 4, 5, 6] };
+    const rules: RuleType = { fact: "items", operator: "bigger", value: 5 };
+
+    const engine = new RuleEngine();
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(1);
+  });
+
   it("should evaluate 'withinLast' operator correctly", () => {
     const context = {
       lastLogin: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
@@ -276,6 +298,110 @@ describe("RuleEngine", () => {
 
     expect(result).toBe(true);
     expect(history).toHaveLength(1);
+  });
+
+  it("should evaluate 'exists' operator correctly", () => {
+    const context = { name: "John Doe" };
+    const rules: RuleType = { fact: "name", operator: "exists", value: null };
+
+    const engine = new RuleEngine();
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(1);
+  });
+
+  it("should evaluate 'notExists' operator correctly", () => {
+    const context = { name: undefined };
+    const rules: RuleType = {
+      fact: "name",
+      operator: "notExists",
+      value: null,
+    };
+
+    const engine = new RuleEngine();
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(1);
+  });
+
+  it("should evaluate 'containsSubstring' operator correctly", () => {
+    const context = { text: "hello world" };
+    const rules: RuleType = {
+      fact: "text",
+      operator: "containsSubstring",
+      value: "world",
+    };
+
+    const engine = new RuleEngine();
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(1);
+  });
+
+  it("should evaluate 'matches' operator correctly", () => {
+    const context = { text: "hello world" };
+    const rules: RuleType = {
+      fact: "text",
+      operator: "matches",
+      value: "^hello.*",
+    };
+
+    const engine = new RuleEngine();
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(1);
+  });
+
+  it("should evaluate 'isEmpty' operator correctly", () => {
+    const context = { list: [] };
+    const rules: RuleType = { fact: "list", operator: "isEmpty", value: null };
+
+    const engine = new RuleEngine();
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(1);
+  });
+
+  it("should evaluate 'isNotEmpty' operator correctly", () => {
+    const context = { list: [1, 2, 3] };
+    const rules: RuleType = {
+      fact: "list",
+      operator: "isNotEmpty",
+      value: null,
+    };
+
+    const engine = new RuleEngine();
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(1);
+  });
+
+  it("should throw error for unsupported context type in 'smaller'", () => {
+    const context = { age: 25 };
+    const rules: RuleType = { fact: "age", operator: "smaller", value: 3 };
+
+    const engine = new RuleEngine();
+
+    expect(() => engine.evaluateRules(context, rules)).toThrow(
+      RuleEngineInvalidSizeTypeError
+    );
+  });
+
+  it("should throw error for unsupported context type in 'bigger'", () => {
+    const context = { age: 25 };
+    const rules: RuleType = { fact: "age", operator: "bigger", value: 3 };
+
+    const engine = new RuleEngine();
+
+    expect(() => engine.evaluateRules(context, rules)).toThrow(
+      RuleEngineInvalidSizeTypeError
+    );
   });
 
   it("should throw error for unsupported context type in 'withinLast'", () => {

@@ -7,13 +7,11 @@ import type {
 } from "./Models/Rule";
 import type { EvaluationResult, RuleResult } from "./Models/Result";
 import {
-  RuleEngineInvalidBetweenValueError,
   RuleEngineInvalidOperatorError,
   RuleEngineInvalidRuleStructureError,
-  RuleEngineInvalidSizeTypeError,
-  RuleEngineUnsupportedContextTypeError,
 } from "./Models/Error";
 
+import { Operations } from "./Utilities/Operations";
 import type RuleEnginePort from "./Ports/RuleEnginePort";
 
 export default class RuleEngine implements RuleEnginePort {
@@ -24,116 +22,18 @@ export default class RuleEngine implements RuleEnginePort {
     const factValue = this.context[rule.fact];
     const ruleValue = rule.value;
 
-    let result: boolean;
+    const operatorFunction =
+      Operations[rule.operator as keyof typeof Operations];
 
-    switch (rule.operator) {
-      case "equal":
-        result = factValue === ruleValue;
-        break;
-      case "notEqual":
-        result = factValue !== ruleValue;
-        break;
-      case "greaterThan":
-        result = this.compare(factValue, ruleValue) > 0;
-        break;
-      case "lessThan":
-        result = this.compare(factValue, ruleValue) < 0;
-        break;
-      case "greaterThanOrEqual":
-        result = this.compare(factValue, ruleValue) >= 0;
-        break;
-      case "lessThanOrEqual":
-        result = this.compare(factValue, ruleValue) <= 0;
-        break;
-      case "in":
-        result = Array.isArray(ruleValue) && ruleValue.includes(factValue);
-        break;
-      case "notIn":
-        result = Array.isArray(ruleValue) && !ruleValue.includes(factValue);
-        break;
-      case "contains":
-        result = Array.isArray(factValue) && factValue.includes(ruleValue);
-        break;
-      case "startsWith":
-        result =
-          typeof factValue === "string" && factValue.startsWith(ruleValue);
-        break;
-      case "endsWith":
-        result = typeof factValue === "string" && factValue.endsWith(ruleValue);
-        break;
-      case "regex":
-        result =
-          typeof factValue === "string" &&
-          new RegExp(ruleValue).test(factValue);
-        break;
-      case "between":
-        if (Array.isArray(ruleValue) && ruleValue.length === 2) {
-          const [min, max] = ruleValue;
-
-          result =
-            this.compare(factValue, min) >= 0 &&
-            this.compare(factValue, max) <= 0;
-        } else {
-          throw new RuleEngineInvalidBetweenValueError();
-        }
-        break;
-      case "size":
-        if (Array.isArray(factValue) || typeof factValue === "string") {
-          result = factValue.length === ruleValue;
-        } else {
-          throw new RuleEngineInvalidSizeTypeError();
-        }
-        break;
-      case "withinLast":
-        if (typeof factValue === "string" || factValue instanceof Date) {
-          const now = new Date();
-          const factDate = new Date(factValue);
-          const diff = now.getTime() - factDate.getTime();
-
-          result = diff <= ruleValue;
-        } else {
-          throw new RuleEngineUnsupportedContextTypeError();
-        }
-        break;
-      case "before":
-        if (typeof factValue === "string" || factValue instanceof Date) {
-          const factDate = new Date(factValue);
-          const ruleDate = new Date(ruleValue);
-
-          result = factDate.getTime() < ruleDate.getTime();
-        } else {
-          throw new RuleEngineUnsupportedContextTypeError();
-        }
-        break;
-      case "after":
-        if (typeof factValue === "string" || factValue instanceof Date) {
-          const factDate = new Date(factValue);
-          const ruleDate = new Date(ruleValue);
-
-          result = factDate.getTime() > ruleDate.getTime();
-        } else {
-          throw new RuleEngineUnsupportedContextTypeError();
-        }
-        break;
-      default:
-        throw new RuleEngineInvalidOperatorError(rule.operator);
+    if (!operatorFunction) {
+      throw new RuleEngineInvalidOperatorError(rule.operator);
     }
+
+    const result = operatorFunction(factValue, ruleValue);
 
     this.history.push({ rule, result });
 
     return result;
-  }
-
-  private compare(a: any, b: any): number {
-    if (typeof a === "number" && typeof b === "number") {
-      return a - b;
-    } else if (typeof a === "string" && typeof b === "string") {
-      return a.localeCompare(b);
-    } else if (a instanceof Date && b instanceof Date) {
-      return a.getTime() - b.getTime();
-    } else {
-      throw new RuleEngineUnsupportedContextTypeError();
-    }
   }
 
   private evaluateAll(rules: AllRule): boolean {

@@ -6,16 +6,24 @@ export type Operator =
   | "greaterThanOrEqual"
   | "lessThanOrEqual"
   | "in"
+  | "notIn"
   | "contains"
   | "startsWith"
   | "endsWith"
   | "regex"
   | "between"
-  | "notIn"
-  | "size"
+  | "count"
+  | "smaller"
+  | "bigger"
   | "withinLast"
   | "before"
-  | "after";
+  | "after"
+  | "exists"
+  | "notExists"
+  | "containsSubstring"
+  | "matches"
+  | "isEmpty"
+  | "isNotEmpty";
 
 export interface Rule {
   fact: string;
