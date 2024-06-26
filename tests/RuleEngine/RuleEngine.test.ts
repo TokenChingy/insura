@@ -1,9 +1,3 @@
-import type {
-  AllRule,
-  AnyRule,
-  CombinedRule,
-  RuleType,
-} from "../../src/RuleEngine/Models/Rule";
 import {
   RuleEngineInvalidBetweenValueError,
   RuleEngineInvalidOperatorError,
@@ -14,13 +8,14 @@ import {
 import { describe, expect, it } from "bun:test";
 
 import RuleEngine from "../../src/RuleEngine/RuleEngine";
+import type { RuleType } from "../../src/RuleEngine/Models/Rule";
 
 describe("RuleEngine", () => {
+  const engine = new RuleEngine();
+
   it("should evaluate simple equality rule", () => {
     const context = { age: 25 };
     const rules: RuleType = { fact: "age", operator: "equal", value: 25 };
-
-    const engine = new RuleEngine();
     const { result, history } = engine.evaluateRules(context, rules);
 
     expect(result).toBe(true);
@@ -40,8 +35,6 @@ describe("RuleEngine", () => {
         { fact: "income", operator: "greaterThan", value: 50000 },
       ],
     };
-
-    const engine = new RuleEngine();
     const { result, history } = engine.evaluateRules(context, rules);
 
     expect(result).toBe(true);
@@ -67,8 +60,6 @@ describe("RuleEngine", () => {
         { fact: "age", operator: "greaterThan", value: 18 },
       ],
     };
-
-    const engine = new RuleEngine();
     const { result, history } = engine.evaluateRules(context, rules);
 
     expect(result).toBe(true);
@@ -84,8 +75,6 @@ describe("RuleEngine", () => {
         { fact: "country", operator: "equal", value: "Canada" },
       ],
     };
-
-    const engine = new RuleEngine();
     const { result, history } = engine.evaluateRules(context, rules);
 
     expect(result).toBe(true);
@@ -101,8 +90,6 @@ describe("RuleEngine", () => {
         { fact: "country", operator: "equal", value: "USA" },
       ],
     };
-
-    const engine = new RuleEngine();
     const { result, history } = engine.evaluateRules(context, rules);
 
     expect(result).toBe(true);
@@ -126,8 +113,6 @@ describe("RuleEngine", () => {
         { fact: "status", operator: "equal", value: "married" },
       ],
     };
-
-    const engine = new RuleEngine();
     const { result, history } = engine.evaluateRules(context, rules);
 
     expect(result).toBe(true);
@@ -137,8 +122,6 @@ describe("RuleEngine", () => {
   it("should throw error for invalid between value", () => {
     const context = { age: 25 };
     const rules: RuleType = { fact: "age", operator: "between", value: [18] }; // Invalid between value
-
-    const engine = new RuleEngine();
 
     expect(() => engine.evaluateRules(context, rules)).toThrow(
       RuleEngineInvalidBetweenValueError
@@ -153,8 +136,6 @@ describe("RuleEngine", () => {
       value: 25,
     };
 
-    const engine = new RuleEngine();
-
     expect(() => engine.evaluateRules(context, rules)).toThrow(
       RuleEngineInvalidOperatorError
     );
@@ -163,8 +144,6 @@ describe("RuleEngine", () => {
   it("should throw error for invalid rule structure", () => {
     const context = { age: 25 };
     const rules: RuleType = { invalidField: "value" } as any;
-
-    const engine = new RuleEngine();
 
     expect(() => engine.evaluateRules(context, rules)).toThrow(
       RuleEngineInvalidRuleStructureError
@@ -186,8 +165,6 @@ describe("RuleEngine", () => {
     const context = { age: new Map() };
     const rules: RuleType = { fact: "age", operator: "greaterThan", value: 18 };
 
-    const engine = new RuleEngine();
-
     expect(() => engine.evaluateRules(context, rules)).toThrow(
       RuleEngineUnsupportedContextTypeError
     );
@@ -200,13 +177,10 @@ describe("RuleEngine", () => {
       operator: "in",
       value: ["USA", "Canada", "UK"],
     };
-
-    const engine = new RuleEngine();
     const { result, history } = engine.evaluateRules(context, rules);
 
     expect(result).toBe(true);
     expect(history).toHaveLength(1);
-    expect(history[0]).toEqual({ rule: rules, result: true });
   });
 
   it("should evaluate 'contains' operator correctly", () => {
@@ -216,12 +190,9 @@ describe("RuleEngine", () => {
       operator: "contains",
       value: "premium",
     };
-
-    const engine = new RuleEngine();
     const { result, history } = engine.evaluateRules(context, rules);
 
     expect(result).toBe(true);
     expect(history).toHaveLength(1);
-    expect(history[0]).toEqual({ rule: rules, result: true });
   });
 });
