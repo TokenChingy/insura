@@ -38,7 +38,7 @@ describe("RuleEngine", () => {
     const { result, history } = engine.evaluateRules(context, rules);
 
     expect(result).toBe(true);
-    expect(history).toHaveLength(4);
+    expect(history).toHaveLength(5);
   });
 
   it("should evaluate nested ANY within ALL rules", () => {
@@ -78,7 +78,7 @@ describe("RuleEngine", () => {
     const { result, history } = engine.evaluateRules(context, rules);
 
     expect(result).toBe(true);
-    expect(history).toHaveLength(2);
+    expect(history).toHaveLength(4);
   });
 
   it("should evaluate top-level ALL rules", () => {
@@ -116,7 +116,7 @@ describe("RuleEngine", () => {
     const { result, history } = engine.evaluateRules(context, rules);
 
     expect(result).toBe(true);
-    expect(history).toHaveLength(6);
+    expect(history).toHaveLength(7);
   });
 
   it("should throw error for invalid between value", () => {

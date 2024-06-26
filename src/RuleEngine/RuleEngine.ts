@@ -114,7 +114,13 @@ export default class RuleEngine implements RuleEnginePort {
   }
 
   private evaluateAny(rules: AnyRule): boolean {
-    const result = rules.any.some((rule) => this.evaluate(rule));
+    let result = false;
+
+    for (const rule of rules.any) {
+      if (this.evaluate(rule)) {
+        result = true;
+      }
+    }
 
     this.evaluationHistory.push({ rule: rules, result });
 
