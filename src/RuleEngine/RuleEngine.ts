@@ -84,6 +84,37 @@ export default class RuleEngine implements RuleEnginePort {
           throw new RuleEngineInvalidSizeTypeError();
         }
         break;
+      case "withinLast":
+        if (typeof factValue === "string" || factValue instanceof Date) {
+          const now = new Date();
+          const factDate = new Date(factValue);
+          const diff = now.getTime() - factDate.getTime();
+
+          result = diff <= ruleValue;
+        } else {
+          throw new RuleEngineUnsupportedContextTypeError();
+        }
+        break;
+      case "before":
+        if (typeof factValue === "string" || factValue instanceof Date) {
+          const factDate = new Date(factValue);
+          const ruleDate = new Date(ruleValue);
+
+          result = factDate.getTime() < ruleDate.getTime();
+        } else {
+          throw new RuleEngineUnsupportedContextTypeError();
+        }
+        break;
+      case "after":
+        if (typeof factValue === "string" || factValue instanceof Date) {
+          const factDate = new Date(factValue);
+          const ruleDate = new Date(ruleValue);
+
+          result = factDate.getTime() > ruleDate.getTime();
+        } else {
+          throw new RuleEngineUnsupportedContextTypeError();
+        }
+        break;
       default:
         throw new RuleEngineInvalidOperatorError(rule.operator);
     }

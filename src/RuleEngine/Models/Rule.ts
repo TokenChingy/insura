@@ -12,7 +12,10 @@ export type Operator =
   | "regex"
   | "between"
   | "notIn"
-  | "size";
+  | "size"
+  | "withinLast"
+  | "before"
+  | "after";
 
 export interface Rule {
   fact: string;

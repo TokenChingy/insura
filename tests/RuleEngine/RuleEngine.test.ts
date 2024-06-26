@@ -119,6 +119,41 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(7);
   });
 
+  it("should evaluate top-level ANY and ALL rules with nested ANY and ALL rules", () => {
+    const context = {
+      age: 30,
+      income: 40000,
+      country: "Canada",
+      status: "single",
+    };
+    const rules: RuleType = {
+      all: [
+        { fact: "age", operator: "greaterThan", value: 21 },
+        { fact: "income", operator: "greaterThan", value: 30000 },
+        {
+          all: [
+            { fact: "age", operator: "greaterThan", value: 25 },
+            { fact: "income", operator: "greaterThan", value: 35000 },
+          ],
+        },
+      ],
+      any: [
+        { fact: "country", operator: "equal", value: "Canada" },
+        { fact: "status", operator: "equal", value: "married" },
+        {
+          all: [
+            { fact: "age", operator: "greaterThan", value: 18 },
+            { fact: "income", operator: "greaterThan", value: 10000 },
+          ],
+        },
+      ],
+    };
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(13);
+  });
+
   it("should throw error for invalid between value", () => {
     const context = { age: 25 };
     const rules: RuleType = { fact: "age", operator: "between", value: [18] }; // Invalid between value
@@ -194,5 +229,97 @@ describe("RuleEngine", () => {
 
     expect(result).toBe(true);
     expect(history).toHaveLength(1);
+  });
+
+  it("should evaluate 'withinLast' operator correctly", () => {
+    const context = {
+      lastLogin: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    }; // 1 hour ago
+    const rules: RuleType = {
+      fact: "lastLogin",
+      operator: "withinLast",
+      value: 2 * 60 * 60 * 1000,
+    }; // within last 2 hours
+
+    const engine = new RuleEngine();
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(1);
+  });
+
+  it("should evaluate 'before' operator correctly", () => {
+    const context = { eventDate: "2023-01-01T00:00:00Z" };
+    const rules: RuleType = {
+      fact: "eventDate",
+      operator: "before",
+      value: "2024-01-01T00:00:00Z",
+    };
+
+    const engine = new RuleEngine();
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(1);
+  });
+
+  it("should evaluate 'after' operator correctly", () => {
+    const context = { eventDate: "2025-01-01T00:00:00Z" };
+    const rules: RuleType = {
+      fact: "eventDate",
+      operator: "after",
+      value: "2024-01-01T00:00:00Z",
+    };
+
+    const engine = new RuleEngine();
+    const { result, history } = engine.evaluateRules(context, rules);
+
+    expect(result).toBe(true);
+    expect(history).toHaveLength(1);
+  });
+
+  it("should throw error for unsupported context type in 'withinLast'", () => {
+    const context = { lastLogin: 1234567890 }; // Invalid date type
+    const rules: RuleType = {
+      fact: "lastLogin",
+      operator: "withinLast",
+      value: 2 * 60 * 60 * 1000,
+    };
+
+    const engine = new RuleEngine();
+
+    expect(() => engine.evaluateRules(context, rules)).toThrow(
+      RuleEngineUnsupportedContextTypeError
+    );
+  });
+
+  it("should throw error for unsupported context type in 'before'", () => {
+    const context = { eventDate: 1234567890 }; // Invalid date type
+    const rules: RuleType = {
+      fact: "eventDate",
+      operator: "before",
+      value: "2024-01-01T00:00:00Z",
+    };
+
+    const engine = new RuleEngine();
+
+    expect(() => engine.evaluateRules(context, rules)).toThrow(
+      RuleEngineUnsupportedContextTypeError
+    );
+  });
+
+  it("should throw error for unsupported context type in 'after'", () => {
+    const context = { eventDate: 1234567890 }; // Invalid date type
+    const rules: RuleType = {
+      fact: "eventDate",
+      operator: "after",
+      value: "2024-01-01T00:00:00Z",
+    };
+
+    const engine = new RuleEngine();
+
+    expect(() => engine.evaluateRules(context, rules)).toThrow(
+      RuleEngineUnsupportedContextTypeError
+    );
   });
 });
