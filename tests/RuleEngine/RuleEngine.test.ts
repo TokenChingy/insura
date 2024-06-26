@@ -131,7 +131,7 @@ describe("RuleEngine", () => {
         { fact: "age", operator: "greaterThan", value: 21 },
         { fact: "income", operator: "greaterThan", value: 30000 },
         {
-          all: [
+          any: [
             { fact: "age", operator: "greaterThan", value: 25 },
             { fact: "income", operator: "greaterThan", value: 35000 },
           ],
