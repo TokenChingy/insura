@@ -18,7 +18,7 @@ import type RuleEnginePort from "./Ports/RuleEnginePort";
 
 export default class RuleEngine implements RuleEnginePort {
   private context: Record<string, unknown> = {};
-  private evaluationHistory: RuleResult[] = [];
+  private history: RuleResult[] = [];
 
   private evaluateRule(rule: Rule): boolean {
     const factValue = this.context[rule.fact];
@@ -88,7 +88,7 @@ export default class RuleEngine implements RuleEnginePort {
         throw new RuleEngineInvalidOperatorError(rule.operator);
     }
 
-    this.evaluationHistory.push({ rule, result });
+    this.history.push({ rule, result });
 
     return result;
   }
@@ -108,7 +108,7 @@ export default class RuleEngine implements RuleEnginePort {
   private evaluateAll(rules: AllRule): boolean {
     const result = rules.all.every((rule) => this.evaluate(rule));
 
-    this.evaluationHistory.push({ rule: rules, result });
+    this.history.push({ rule: rules, result });
 
     return result;
   }
@@ -122,7 +122,7 @@ export default class RuleEngine implements RuleEnginePort {
       }
     }
 
-    this.evaluationHistory.push({ rule: rules, result });
+    this.history.push({ rule: rules, result });
 
     return result;
   }
@@ -132,7 +132,7 @@ export default class RuleEngine implements RuleEnginePort {
     const anyResult = this.evaluateAny({ any: rules.any });
     const result = allResult && anyResult;
 
-    this.evaluationHistory.push({ rule: rules, result });
+    this.history.push({ rule: rules, result });
 
     return result;
   }
@@ -156,10 +156,11 @@ export default class RuleEngine implements RuleEnginePort {
     rules: RuleType
   ): EvaluationResult {
     this.context = context;
-    this.evaluationHistory = [];
+    this.history = [];
 
-    const result = this.evaluate(rules);
-
-    return { result, history: this.evaluationHistory };
+    return {
+      result: this.evaluate(rules),
+      history: this.history,
+    };
   }
 }
