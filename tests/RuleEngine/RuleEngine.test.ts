@@ -10,9 +10,19 @@ import { describe, expect, it } from "bun:test";
 import RuleEngine from "../../src/RuleEngine/RuleEngine";
 import type { RuleType } from "../../src/RuleEngine/Models/Rule";
 
+/**
+ * Test suite for the RuleEngine.
+ *
+ * @suite
+ */
 describe("RuleEngine", () => {
   const engine = new RuleEngine();
 
+  /**
+   * Test case for evaluating a simple equality rule.
+   *
+   * @test
+   */
   it("should evaluate simple equality rule", () => {
     const context = { age: 25 };
     const rules: RuleType = { fact: "age", operator: "equal", value: 25 };
@@ -22,6 +32,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating nested ALL within ANY rules.
+   *
+   * @test
+   */
   it("should evaluate nested ALL within ANY rules", () => {
     const context = { age: 25, status: "single", income: 60000 };
     const rules: RuleType = {
@@ -41,6 +56,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(5);
   });
 
+  /**
+   * Test case for evaluating nested ANY within ALL rules.
+   *
+   * @test
+   */
   it("should evaluate nested ANY within ALL rules", () => {
     const context = {
       age: 30,
@@ -66,6 +86,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(6);
   });
 
+  /**
+   * Test case for evaluating top-level ANY rules.
+   *
+   * @test
+   */
   it("should evaluate top-level ANY rules", () => {
     const context = { age: 20, income: 30000, country: "USA" };
     const rules: RuleType = {
@@ -81,6 +106,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(4);
   });
 
+  /**
+   * Test case for evaluating top-level ALL rules.
+   *
+   * @test
+   */
   it("should evaluate top-level ALL rules", () => {
     const context = { age: 30, income: 60000, country: "USA" };
     const rules: RuleType = {
@@ -96,6 +126,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(4);
   });
 
+  /**
+   * Test case for evaluating top-level ANY and ALL rules.
+   *
+   * @test
+   */
   it("should evaluate top-level ANY and ALL rules", () => {
     const context = {
       age: 30,
@@ -119,6 +154,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(7);
   });
 
+  /**
+   * Test case for evaluating top-level ANY and ALL rules with nested ANY and ALL rules.
+   *
+   * @test
+   */
   it("should evaluate top-level ANY and ALL rules with nested ANY and ALL rules", () => {
     const context = {
       age: 30,
@@ -154,6 +194,12 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(13);
   });
 
+  /**
+   * Test case for invalid between value.
+   *
+   * @test
+   * @throws {RuleEngineInvalidBetweenValueError} If the between value is invalid.
+   */
   it("should throw error for invalid between value", () => {
     const context = { age: 25 };
     const rules: RuleType = { fact: "age", operator: "between", value: [18] }; // Invalid between value
@@ -163,6 +209,12 @@ describe("RuleEngine", () => {
     );
   });
 
+  /**
+   * Test case for invalid operator.
+   *
+   * @test
+   * @throws {RuleEngineInvalidOperatorError} If the operator is invalid.
+   */
   it("should throw error for invalid operator", () => {
     const context = { age: 25 };
     const rules: RuleType = {
@@ -176,6 +228,12 @@ describe("RuleEngine", () => {
     );
   });
 
+  /**
+   * Test case for invalid rule structure.
+   *
+   * @test
+   * @throws {RuleEngineInvalidRuleStructureError} If the rule structure is invalid.
+   */
   it("should throw error for invalid rule structure", () => {
     const context = { age: 25 };
     const rules: RuleType = { invalidField: "value" } as any;
@@ -185,6 +243,12 @@ describe("RuleEngine", () => {
     );
   });
 
+  /**
+   * Test case for invalid size type.
+   *
+   * @test
+   * @throws {RuleEngineInvalidSizeTypeError} If the size type is invalid.
+   */
   it("should throw error for invalid size type", () => {
     const context = { age: 25 };
     const rules: RuleType = { fact: "age", operator: "size", value: 2 };
@@ -196,6 +260,12 @@ describe("RuleEngine", () => {
     );
   });
 
+  /**
+   * Test case for unsupported context type in comparison.
+   *
+   * @test
+   * @throws {RuleEngineUnsupportedContextTypeError} If the context type is unsupported.
+   */
   it("should throw error for unsupported context type in comparison", () => {
     const context = { age: new Map() };
     const rules: RuleType = { fact: "age", operator: "greaterThan", value: 18 };
@@ -205,6 +275,11 @@ describe("RuleEngine", () => {
     );
   });
 
+  /**
+   * Test case for evaluating 'in' operator.
+   *
+   * @test
+   */
   it("should evaluate 'in' operator correctly", () => {
     const context = { country: "USA" };
     const rules: RuleType = {
@@ -218,6 +293,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'contains' operator.
+   *
+   * @test
+   */
   it("should evaluate 'contains' operator correctly", () => {
     const context = { tags: ["premium", "member"] };
     const rules: RuleType = {
@@ -231,6 +311,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'smaller' operator.
+   *
+   * @test
+   */
   it("should evaluate 'smaller' operator correctly", () => {
     const context = { items: [1, 2, 3] };
     const rules: RuleType = { fact: "items", operator: "smaller", value: 5 };
@@ -242,6 +327,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'bigger' operator.
+   *
+   * @test
+   */
   it("should evaluate 'bigger' operator correctly", () => {
     const context = { items: [1, 2, 3, 4, 5, 6] };
     const rules: RuleType = { fact: "items", operator: "bigger", value: 5 };
@@ -253,6 +343,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'withinLast' operator.
+   *
+   * @test
+   */
   it("should evaluate 'withinLast' operator correctly", () => {
     const context = {
       lastLogin: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
@@ -270,6 +365,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'before' operator.
+   *
+   * @test
+   */
   it("should evaluate 'before' operator correctly", () => {
     const context = { eventDate: "2023-01-01T00:00:00Z" };
     const rules: RuleType = {
@@ -285,6 +385,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'after' operator.
+   *
+   * @test
+   */
   it("should evaluate 'after' operator correctly", () => {
     const context = { eventDate: "2025-01-01T00:00:00Z" };
     const rules: RuleType = {
@@ -300,6 +405,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'exists' operator.
+   *
+   * @test
+   */
   it("should evaluate 'exists' operator correctly", () => {
     const context = { name: "John Doe" };
     const rules: RuleType = { fact: "name", operator: "exists", value: null };
@@ -311,6 +421,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'notExists' operator.
+   *
+   * @test
+   */
   it("should evaluate 'notExists' operator correctly", () => {
     const context = { name: undefined };
     const rules: RuleType = {
@@ -326,6 +441,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'containsSubstring' operator.
+   *
+   * @test
+   */
   it("should evaluate 'containsSubstring' operator correctly", () => {
     const context = { text: "hello world" };
     const rules: RuleType = {
@@ -341,6 +461,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'matches' operator.
+   *
+   * @test
+   */
   it("should evaluate 'matches' operator correctly", () => {
     const context = { text: "hello world" };
     const rules: RuleType = {
@@ -356,6 +481,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'isEmpty' operator.
+   *
+   * @test
+   */
   it("should evaluate 'isEmpty' operator correctly", () => {
     const context = { list: [] };
     const rules: RuleType = { fact: "list", operator: "isEmpty", value: null };
@@ -367,6 +497,11 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for evaluating 'isNotEmpty' operator.
+   *
+   * @test
+   */
   it("should evaluate 'isNotEmpty' operator correctly", () => {
     const context = { list: [1, 2, 3] };
     const rules: RuleType = {
@@ -382,6 +517,12 @@ describe("RuleEngine", () => {
     expect(history).toHaveLength(1);
   });
 
+  /**
+   * Test case for unsupported context type in 'smaller' operator.
+   *
+   * @test
+   * @throws {RuleEngineInvalidSizeTypeError} If the context type is unsupported for 'smaller'.
+   */
   it("should throw error for unsupported context type in 'smaller'", () => {
     const context = { age: 25 };
     const rules: RuleType = { fact: "age", operator: "smaller", value: 3 };
@@ -393,6 +534,12 @@ describe("RuleEngine", () => {
     );
   });
 
+  /**
+   * Test case for unsupported context type in 'bigger' operator.
+   *
+   * @test
+   * @throws {RuleEngineInvalidSizeTypeError} If the context type is unsupported for 'bigger'.
+   */
   it("should throw error for unsupported context type in 'bigger'", () => {
     const context = { age: 25 };
     const rules: RuleType = { fact: "age", operator: "bigger", value: 3 };
@@ -404,6 +551,12 @@ describe("RuleEngine", () => {
     );
   });
 
+  /**
+   * Test case for unsupported context type in 'withinLast' operator.
+   *
+   * @test
+   * @throws {RuleEngineUnsupportedContextTypeError} If the context type is unsupported for 'withinLast'.
+   */
   it("should throw error for unsupported context type in 'withinLast'", () => {
     const context = { lastLogin: 1234567890 }; // Invalid date type
     const rules: RuleType = {
@@ -419,6 +572,12 @@ describe("RuleEngine", () => {
     );
   });
 
+  /**
+   * Test case for unsupported context type in 'before' operator.
+   *
+   * @test
+   * @throws {RuleEngineUnsupportedContextTypeError} If the context type is unsupported for 'before'.
+   */
   it("should throw error for unsupported context type in 'before'", () => {
     const context = { eventDate: 1234567890 }; // Invalid date type
     const rules: RuleType = {
@@ -434,6 +593,12 @@ describe("RuleEngine", () => {
     );
   });
 
+  /**
+   * Test case for unsupported context type in 'after' operator.
+   *
+   * @test
+   * @throws {RuleEngineUnsupportedContextTypeError} If the context type is unsupported for 'after'.
+   */
   it("should throw error for unsupported context type in 'after'", () => {
     const context = { eventDate: 1234567890 }; // Invalid date type
     const rules: RuleType = {

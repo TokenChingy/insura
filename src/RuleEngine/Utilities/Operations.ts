@@ -4,6 +4,15 @@ import {
   RuleEngineUnsupportedContextTypeError,
 } from "../Models/Error";
 
+/**
+ * Compares two values and returns a numeric indication of their relationship.
+ *
+ * @function
+ * @param {any} a - The first value to compare. This can be a number, string, or Date object.
+ * @param {any} b - The second value to compare. This can be a number, string, or Date object.
+ * @returns {number} Returns a negative number if `a` is less than `b`, zero if they are equal, and a positive number if `a` is greater than `b`.
+ * @throws {RuleEngineUnsupportedContextTypeError} If `a` and `b` are not of the same type or not supported types for comparison.
+ */
 export function compare(a: any, b: any): number {
   if (typeof a === "number" && typeof b === "number") {
     return a - b;
@@ -16,6 +25,46 @@ export function compare(a: any, b: any): number {
   }
 }
 
+/**
+ * A collection of operations for evaluating rules in a rule engine.
+ * Each operation is a function that takes a fact value and a rule value as arguments and returns a boolean result.
+ *
+ * @constant
+ * @type {Object}
+ *
+ * @property {(factValue: any, ruleValue: any) => boolean} equal - Checks if the fact value is equal to the rule value.
+ * @property {(factValue: any, ruleValue: any) => boolean} notEqual - Checks if the fact value is not equal to the rule value.
+ * @property {(factValue: any, ruleValue: any) => boolean} greaterThan - Checks if the fact value is greater than the rule value.
+ * @property {(factValue: any, ruleValue: any) => boolean} lessThan - Checks if the fact value is less than the rule value.
+ * @property {(factValue: any, ruleValue: any) => boolean} greaterThanOrEqual - Checks if the fact value is greater than or equal to the rule value.
+ * @property {(factValue: any, ruleValue: any) => boolean} lessThanOrEqual - Checks if the fact value is less than or equal to the rule value.
+ * @property {(factValue: any, ruleValue: any) => boolean} in - Checks if the fact value is included in the rule value array.
+ * @property {(factValue: any, ruleValue: any) => boolean} notIn - Checks if the fact value is not included in the rule value array.
+ * @property {(factValue: any, ruleValue: any) => boolean} contains - Checks if the fact value array contains the rule value.
+ * @property {(factValue: any, ruleValue: any) => boolean} startsWith - Checks if the fact value string starts with the rule value.
+ * @property {(factValue: any, ruleValue: any) => boolean} endsWith - Checks if the fact value string ends with the rule value.
+ * @property {(factValue: any, ruleValue: any) => boolean} regex - Checks if the fact value string matches the regular expression rule value.
+ * @property {(factValue: any, ruleValue: any) => boolean} between - Checks if the fact value is between the two-element array rule value.
+ * @throws {RuleEngineInvalidBetweenValueError} If the rule value is not a two-element array.
+ * @property {(factValue: any, ruleValue: any) => boolean} size - Checks if the length of the fact value (string or array) matches the rule value.
+ * @throws {RuleEngineInvalidSizeTypeError} If the fact value is not a string or array.
+ * @property {(factValue: any, ruleValue: any) => boolean} smaller - Checks if the length of the fact value (string or array) is smaller than the rule value.
+ * @throws {RuleEngineInvalidSizeTypeError} If the fact value is not a string or array.
+ * @property {(factValue: any, ruleValue: any) => boolean} bigger - Checks if the length of the fact value (string or array) is bigger than the rule value.
+ * @throws {RuleEngineInvalidSizeTypeError} If the fact value is not a string or array.
+ * @property {(factValue: any, ruleValue: any) => boolean} withinLast - Checks if the fact date is within the last specified period from the current date.
+ * @throws {RuleEngineUnsupportedContextTypeError} If the fact value is not a string or Date.
+ * @property {(factValue: any, ruleValue: any) => boolean} before - Checks if the fact date is before the rule date.
+ * @throws {RuleEngineUnsupportedContextTypeError} If the fact value is not a string or Date.
+ * @property {(factValue: any, ruleValue: any) => boolean} after - Checks if the fact date is after the rule date.
+ * @throws {RuleEngineUnsupportedContextTypeError} If the fact value is not a string or Date.
+ * @property {(factValue: any, ruleValue: any) => boolean} exists - Checks if the fact value is not undefined or null.
+ * @property {(factValue: any, ruleValue: any) => boolean} notExists - Checks if the fact value is undefined or null.
+ * @property {(factValue: any, ruleValue: any) => boolean} containsSubstring - Checks if the fact value string contains the rule value substring.
+ * @property {(factValue: any, ruleValue: any) => boolean} matches - Checks if the fact value string matches the rule value regular expression.
+ * @property {(factValue: any, ruleValue: any) => boolean} isEmpty - Checks if the fact value (string or array) is empty.
+ * @property {(factValue: any, ruleValue: any) => boolean} isNotEmpty - Checks if the fact value (string or array) is not empty.
+ */
 export const Operations = {
   equal: (factValue: any, ruleValue: any) => factValue === ruleValue,
   notEqual: (factValue: any, ruleValue: any) => factValue !== ruleValue,
